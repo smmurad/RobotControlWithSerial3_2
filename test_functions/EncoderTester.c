@@ -13,14 +13,14 @@
 //encoderTicks encoder;
 
 void Encoder_tester(void *pvParameters) {
-    NRF_LOG_INFO("Enter encoder test");
+    //NRF_LOG_INFO("Enter encoder test");
     //for (int t=0;t<122;t++){
     float dTheta = 0;
     while(true){
 
         //vMotorMovementSwitch(50,50);
         //motor_forward(50);
-        //NRF_LOG_INFO("Motor driving");
+        ////NRF_LOG_INFO("Motor driving");
         //vTaskDelay(3000);
         //motor_stop();
         //motor_forward(50);
@@ -43,7 +43,7 @@ void Encoder_tester(void *pvParameters) {
         //dTheta = (dRight - dLeft) / WHEELBASE_MM;
         (void)dTheta;
         //vMotorMovementSwitch(25,25);
-       // NRF_LOG_INFO("Motor driving");
+       // //NRF_LOG_INFO("Motor driving");
         //vTaskDelay(1000);
         //motor_stop();
         //motor_backward(50);

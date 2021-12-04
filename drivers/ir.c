@@ -35,7 +35,7 @@ void saadc_event_handler(nrfx_saadc_evt_t const* p_event) {
 	nrfx_err_t err;
 	switch (p_event->type) {
 		case NRFX_SAADC_EVT_DONE:
-			NRF_LOG_INFO("SAADC_EVT_DONE");
+			//NRF_LOG_INFO("SAADC_EVT_DONE");
 			err = nrfx_saadc_buffer_convert(p_event->data.done.p_buffer,
 											N_SAMPLES);
 			APP_ERROR_CHECK(err);
@@ -48,14 +48,14 @@ void saadc_event_handler(nrfx_saadc_evt_t const* p_event) {
 			///< Event generated when the buffer is filled with samples.
 			break;
 		case NRFX_SAADC_EVT_LIMIT:
-			NRF_LOG_INFO("SAADC_EVT_LIMIT");
+			//NRF_LOG_INFO("SAADC_EVT_LIMIT");
 			//p_event->data.limit.channel;
 			if(p_event->data.limit.limit_type == NRF_SAADC_LIMIT_LOW ||
 			p_event->data.limit.limit_type == NRF_SAADC_LIMIT_HIGH);
 			///< Event generated after one of the limits is reached.
 			break;
 		case NRFX_SAADC_EVT_CALIBRATEDONE:
-			NRF_LOG_INFO("SAADC_EVT_CALIBRATEDONE");
+			//NRF_LOG_INFO("SAADC_EVT_CALIBRATEDONE");
 			if (initial_calibration_completed != true)
 				initial_calibration_completed = true;
 			else
@@ -138,7 +138,7 @@ uint16_t ir_read_blocking(IR_Sensor_t sensor) {
 
 void ir_calibrate() {
 	if (nrfx_saadc_calibrate_offset() != NRFX_SUCCESS) {
-		NRF_LOG_INFO("nrfx_saadc_calibration_offset() failed.");
+		//NRF_LOG_INFO("nrfx_saadc_calibration_offset() failed.");
 		return;
 	}
 	

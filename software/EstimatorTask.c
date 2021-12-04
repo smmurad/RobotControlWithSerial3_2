@@ -37,7 +37,7 @@ position_estimate_t kf_state;
 
 /* Pose estimator task */
 void vMainPoseEstimatorTask(void *pvParameters) {
-	NRF_LOG_INFO("mainPoseEstimatorTask: initializing");
+	//NRF_LOG_INFO("mainPoseEstimatorTask: initializing");
 	printf("USING OLD ESTIMATOR");
 	int count = 0;
 	//float period_in_S = PERIOD_ESTIMATOR_MS / 1000.0;
@@ -80,7 +80,7 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 	float gyroSum = 0;
 	float gyroLimit = 0.1;
 
-	NRF_LOG_INFO("mainPoseEstimatorTask: init complete");
+	//NRF_LOG_INFO("mainPoseEstimatorTask: init complete");
 	
 	while (true) {
 		// Loop
@@ -115,7 +115,7 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 
         	while(xQueueReceive(encoderTicksToEstimatorTaskQ, &encoder_ticks_temp, 1) == pdTRUE)
         	{
-            	//NRF_LOG_INFO("Read ticks");
+            	////NRF_LOG_INFO("Read ticks");
             	encoder_ticks.left += encoder_ticks_temp.left;
             	encoder_ticks.right += encoder_ticks_temp.right;
         	}
@@ -135,10 +135,10 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 			}
 			*/
 			dTheta = (dRight - dLeft) / WHEELBASE_MM;					// Get angle from encoders, dervied from arch of circles formula NB! When turning in place this will only give 0
-			if(PRINT_DEBUG)printf("\nLeftDir = %d", LeftMotorDirection);
-			if(PRINT_DEBUG)printf("\nRightDir = %d", RightMotorDirection);
-			if(PRINT_DEBUG)printf("\ndTheta = %.2f", dTheta);
-			//NRF_LOG_INFO("dTheta: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(dTheta));
+			//if(PRINT_DEBUG)printf("\nLeftDir = %d", LeftMotorDirection);
+			//if(PRINT_DEBUG)printf("\nRightDir = %d", RightMotorDirection);
+			//if(PRINT_DEBUG)printf("\ndTheta = %.2f", dTheta);
+			////NRF_LOG_INFO("dTheta: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(dTheta));
 		
 		
 			// Get IMU data:
@@ -154,7 +154,7 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 					gyrZ = 0.0;
 				}
 			} else {
-				//NRF_LOG_INFO("No new data from IMU");
+				////NRF_LOG_INFO("No new data from IMU");
 				gyrZ = 0.0;
 			}
 		
@@ -168,7 +168,7 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 			//float delta_t = tickdiff*1.0/configTICK_RATE_HZ;
 			//xLastWakeTime2 = xTaskGetTickCount(); 
 			//float delta_t = tickdiff*1.0/configTICK_RATE_HZ;
-			//NRF_LOG_INFO("ET:%u",(uint32_t) tickdiff);
+			////NRF_LOG_INFO("ET:%u",(uint32_t) tickdiff);
 		
 		
 		
@@ -220,7 +220,7 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 				
 				headingTime = (xTaskGetTickCount());
 				sprintf(str2, "%d, %d, %d", (int)(kf_state.heading*RAD2DEG), (int)(gyroIntegral*RAD2DEG), (int)(headingTime));
-				NRF_LOG_INFO("%s", str2);
+				//NRF_LOG_INFO("%s", str2);
 		
 				count = 0;
 			}
@@ -236,13 +236,13 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 			//gRight = dRight;
 			xSemaphoreGive(xPoseMutex);
 
-			if(PRINT_DEBUG)NRF_LOG_INFO("KF_x: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(1000*kf_state.x));
-			if(PRINT_DEBUG)NRF_LOG_INFO("KF_y: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(1000*kf_state.y));
-			if(PRINT_DEBUG)NRF_LOG_INFO("KF_heading: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(kf_state.heading));
-			if(PRINT_DEBUG)NRF_LOG_INFO("GYroSum: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(gyroSum));
-/*			if(PRINT_DEBUG)printf("x_hat: %d\n", gX_hat);
-			if(PRINT_DEBUG)printf("y_hat: %d\n", gY_hat);
-			if(PRINT_DEBUG)printf("theta_hat %d\n", gTheta_hat);
+			//if(PRINT_DEBUG)//NRF_LOG_INFO("KF_x: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(1000*kf_state.x));
+			//if(PRINT_DEBUG)//NRF_LOG_INFO("KF_y: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(1000*kf_state.y));
+			//if(PRINT_DEBUG)//NRF_LOG_INFO("KF_heading: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(kf_state.heading));
+			//if(PRINT_DEBUG)//NRF_LOG_INFO("GYroSum: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(gyroSum));
+/*			//if(PRINT_DEBUG)printf("x_hat: %d\n", gX_hat);
+			//if(PRINT_DEBUG)printf("y_hat: %d\n", gY_hat);
+			//if(PRINT_DEBUG)printf("theta_hat %d\n", gTheta_hat);
 */
 			if(LOG_MEASUREMENT_DATA){
 				//Accel.x and Gyrz is treated with offset
@@ -254,7 +254,7 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 		}else{
 			// IMU calibration
 			if(gyroBiasGuard){//neccesary to complete this part only once
-				NRF_LOG_INFO("Gyrobiasguard == 1");
+				//NRF_LOG_INFO("Gyrobiasguard == 1");
 				// Not connected, getting heading and gyro bias
 				//char str4[20];
 				uint16_t i;
@@ -264,9 +264,9 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 				float accelFY = 0;
 				int fails = 0;
 				int sucsess = 0;
-				NRF_LOG_INFO("IMU calib init done");
+				//NRF_LOG_INFO("IMU calib init done");
 				vTaskDelay(150);//use delay so we dont write before i2c is initialized
-				NRF_LOG_INFO("Enter IMU calibration");
+				//NRF_LOG_INFO("Enter IMU calibration");
 				for (i = 0; i < samples; i++){
 					IMU_read(); //needs to be called to get new gyro data
 					gyro = IMU_getGyro();
@@ -285,23 +285,23 @@ void vMainPoseEstimatorTask(void *pvParameters) {
 					while (!IMU_new_data()){
 						vTaskDelay(20); // wait for new data
 						fails++;
-						NRF_LOG_INFO("Waiting for new IMU data");
+						//NRF_LOG_INFO("Waiting for new IMU data");
 						/*
 						sprintf(str4,"cal F:%i S:%i",fails,sucsess);
 						display_text_on_line(4,str4); 
 						*/
 					}
 				}
-				//NRF_LOG_INFO("aFX: %i aFY: %i gF: %i", gyroF, accelFX, gyroOffset);
-				NRF_LOG_INFO("Calib.i: %i", i);
+				////NRF_LOG_INFO("aFX: %i aFY: %i gF: %i", gyroF, accelFX, gyroOffset);
+				//NRF_LOG_INFO("Calib.i: %i", i);
 				gyroOffset = gyroF / (float)samples;
 				accelXoffset = accelFX/(float)samples;
 				accelYoffset = accelFY /(float)samples;
 				gyroBiasGuard = 0;
-				NRF_LOG_INFO("gyroOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(gyroOffset));
-				NRF_LOG_INFO("accelXOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(accelXoffset));
-				NRF_LOG_INFO("accelYOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(accelYoffset));
-				//NRF_LOG_INFO("aX: %i aY: %i g: %i", accelXoffset, accelYoffset, gyroOffset);
+				//NRF_LOG_INFO("gyroOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(gyroOffset));
+				//NRF_LOG_INFO("accelXOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(accelXoffset));
+				//NRF_LOG_INFO("accelYOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(accelYoffset));
+				////NRF_LOG_INFO("aX: %i aY: %i g: %i", accelXoffset, accelYoffset, gyroOffset);
 
 				if(!USEBLUETOOTH){
 					gHandshook = true;

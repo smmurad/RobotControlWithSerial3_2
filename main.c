@@ -176,7 +176,7 @@ static void user_task(void *arg) {
     write.content = "Starting slam application \n";
     xQueueSendToBack(queue_microsd, &write, portMAX_DELAY);
 */
-    NRF_LOG_INFO("user task: initializing");
+    // //NRF_LOG_INFO("user task: initializing");
    
     //UNUSED_PARAMETER(arg);
     //initialization of modules should be done after FreeRtos startup
@@ -196,7 +196,7 @@ static void user_task(void *arg) {
     vTaskPrioritySet(handle_user_task, 1);
     vTaskDelay(5000);
 
-    NRF_LOG_INFO("IMU reading: %d\n\r", g_IMU_float_gyroX());
+    // //NRF_LOG_INFO("IMU reading: %d\n\r", g_IMU_float_gyroX());
 
     //mag_init(MAG_OS_128);//oversampling rate used to set datarate 16->80hz 32->40hz 64->20hz 128->10hz
     //the rest of this is just used for testing and displaying values
@@ -220,7 +220,7 @@ static void user_task(void *arg) {
     //cartesian target;
     
 	
-    NRF_LOG_INFO("User task: init complete");
+    // //NRF_LOG_INFO("User task: init complete");
     while(true){
         vTaskDelay(1000);
         
@@ -234,7 +234,7 @@ static void user_task(void *arg) {
 		// Test-function, sends targetX and targetY to controller some time after initialization, used to test waypoints without server running.
 		if(testWaypoint){
 			int time = (xTaskGetTickCount()/1000);
-			//NRF_LOG_INFO("Time: %i", (int)time);
+			////NRF_LOG_INFO("Time: %i", (int)time);
 		
 			if ((time > 40) && (sent == false)){
 				cartesian target = {targetX, targetY};
@@ -264,6 +264,8 @@ static void led_toggle_task_function (void * pvParameter)
     while (true)
     {
         bsp_board_led_invert(BSP_BOARD_LED_0);
+        // //NRF_LOG_INFO("\n led while.\n.");
+        //if(PRINT_DEBUG)printf("led while printf");
 
         /* Delay a task for a given number of ticks */
         vTaskDelay(100);
@@ -320,15 +322,15 @@ int main(void) {
    //error_msg = xTraceGetLastError();
 #endif
 
-    // Do not start any interrupt that uses system functions before system initialisation.
-    // The best solution is to start the OS before any other initalisation.
-    arq_init();
 
     #if NRF_LOG_ENABLED
 		if (pdPASS != xTaskCreate(logger_thread, "LOGGER", 256, NULL, 1, &m_logger_thread))
 			APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
 	#endif
-    
+
+    // //NRF_LOG_INFO("\n pre task start.\n.");
+    // //if(PRINT_DEBUG)printf(" pre task start printf");
+
     //initialize queues
 	queue_display = xQueueCreate(5, sizeof(display_operation_t));       //For sending things to display
 	queue_microsd = xQueueCreate(5, sizeof(microsd_write_operation_t)); //For writing things to micro SD
@@ -347,14 +349,19 @@ int main(void) {
     xSemaphoreGive(xTickBSem);
 	xControllerBSem = xSemaphoreCreateBinary(); // Estimator to Controller synchronization
 	xCommandReadyBSem = xSemaphoreCreateBinary();
-	
-	
-    if (pdPASS != xTaskCreate(display_task, "DISP", 128, NULL, 1, &handle_display_task))
-        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
 
-    
+	
+	
+    // if (pdPASS != xTaskCreate(display_task, "DISP", 128, NULL, 1, &handle_display_task))
+    //     APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
+
+
+
     if (pdPASS != xTaskCreate(user_task, "USER", 128, NULL, 4, &handle_user_task)) //needs elevated priority because init functions
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+
+        
+
     
     /********************************************************************************************************************************************************* 
      *Tasks used for testing drivers and hardware
@@ -394,9 +401,6 @@ int main(void) {
      * Not to be used in final application
      * ***********************************************************************************************************************************************************/
 
-    if (pdPASS != xTaskCreate(microsd_task, "SD", 256, NULL, 1, &handle_microsd_task))
-        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-    
    	
     if(USE_NEW_ESTIMATOR){
         if (pdPASS != xTaskCreate(vNewMainPoseEstimatorTask, "POSE", 256, NULL, 3, &pose_estimator_task))
@@ -405,6 +409,7 @@ int main(void) {
         if (pdPASS != xTaskCreate(vMainPoseEstimatorTask, "POSE", 256, NULL, 3, &pose_estimator_task))
             APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
     }  
+
 
     if(USE_SPEED_CONTROLLER)
     {
@@ -419,15 +424,16 @@ int main(void) {
     if (pdPASS != xTaskCreate(vMainSensorTowerTask, "SnsT", 256, NULL, 1, &sensor_tower_task))
 		APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
     
-	if (pdPASS != xTaskCreate(vMainCommunicationTask, "COM", 256, NULL, 1, &communication_task)) // Moved to this loop in order to use it for thread communications aswell
-            APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
+	// if (pdPASS != xTaskCreate(vMainCommunicationTask, "COM", 256, NULL, 1, &communication_task)) // Moved to this loop in order to use it for thread communications aswell
+    //         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
     
     
 
     size_t freeHeapSize5 = xPortGetMinimumEverFreeHeapSize();
-    NRF_LOG_INFO("EverFreeHeapSize5 %d", freeHeapSize5); //If 
-    NRF_LOG_INFO("\nInitialization done. SLAM application now starting.\n.");
-    if(PRINT_DEBUG)printf("Application starting");
+    UNUSED_VARIABLE(freeHeapSize5);
+    // //NRF_LOG_INFO("EverFreeHeapSize5 %d", freeHeapSize5); //If 
+    // //NRF_LOG_INFO("\nInitialization done. SLAM application now starting.\n.");
+    // //if(PRINT_DEBUG)printf("Application starting");
     vTaskStartScheduler();
     for (;;) {
         /**

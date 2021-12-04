@@ -128,9 +128,9 @@ int ekf_step(float* Z,float cosTheta,float sinTheta){
 	X[0] += X[3]*p*cosTheta;
 	X[1] += X[3]*p*sinTheta;
 	X[2] += X[4]*p;
-	//NRF_LOG_INFO("X_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[0]));
-	//NRF_LOG_INFO("Y_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[1]));
-	//NRF_LOG_INFO("Theta_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[2]));
+	////NRF_LOG_INFO("X_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[0]));
+	////NRF_LOG_INFO("Y_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[1]));
+	////NRF_LOG_INFO("Theta_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[2]));
 	/*
 	printf("\nX[0] = %d",(int)X[0]);
 	printf("\nX[1] = %d",(int)X[1]);

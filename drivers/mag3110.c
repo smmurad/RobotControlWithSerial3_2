@@ -55,7 +55,7 @@ void mag_calibrate() {
 	int readings = 0;
 	uint8_t mag_status;
 	
-	NRF_LOG_INFO("Reading initial values");
+	//NRF_LOG_INFO("Reading initial values");
 	NRF_LOG_FLUSH();
 	while (((mag_status = mag3110_read(MAG3110_DR_STATUS)) & 8) == 0)
 		;
@@ -71,13 +71,13 @@ void mag_calibrate() {
 	int16_t x_max = x_min;
 	int16_t y_max = y_min;
 	
-	NRF_LOG_INFO("Starting calibration");
+	//NRF_LOG_INFO("Starting calibration");
 	NRF_LOG_FLUSH();
 	while (readings < 30*10) {
 		while (((mag_status = mag3110_read(MAG3110_DR_STATUS)) & 8) == 0)
 			;
 			
-		NRF_LOG_INFO("Value available\n");
+		//NRF_LOG_INFO("Value available\n");
 		NRF_LOG_FLUSH();
 
 		x_msb = mag3110_read(MAG3110_OUT_X_MSB);
@@ -90,7 +90,7 @@ void mag_calibrate() {
 		int16_t x = (x_msb<<8) | (x_lsb);
 		int16_t y = (y_msb<<8) | (y_lsb);
 		
-		NRF_LOG_INFO("Value read: %d\n", x);
+		//NRF_LOG_INFO("Value read: %d\n", x);
 		NRF_LOG_FLUSH();
 
 		if (x > x_max)
@@ -105,7 +105,7 @@ void mag_calibrate() {
 		readings++;
 	}
 
-	NRF_LOG_INFO("Calibration complete: %d, %d, %d, %d", x_max, x_min, y_max, y_min);
+	//NRF_LOG_INFO("Calibration complete: %d, %d, %d, %d", x_max, x_min, y_max, y_min);
 	NRF_LOG_FLUSH();
 
 	x_offset = (x_min + x_max)/2;

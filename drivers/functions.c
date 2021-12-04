@@ -220,8 +220,8 @@ void printCollisionSectors(void){
 	collisionPrinter++;
 	if(collisionPrinter > 60){
 		for(int i = 0; i < NUM_DIST_SENSORS; i++){
-			NRF_LOG_INFO("CollSector: %i. From: %i", (int)i, (int)collisionSectors[i*2]);
-			NRF_LOG_INFO("CollSector: %i.   To: %i", (int)i, (int)collisionSectors[i*2+1]);
+			//NRF_LOG_INFO("CollSector: %i. From: %i", (int)i, (int)collisionSectors[i*2]);
+			//NRF_LOG_INFO("CollSector: %i.   To: %i", (int)i, (int)collisionSectors[i*2+1]);
 		}
 		collisionPrinter = 0;
 	}

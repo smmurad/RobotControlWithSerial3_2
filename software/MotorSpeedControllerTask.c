@@ -32,7 +32,7 @@ double left_motor_speed, right_motor_speed;  //For digital low pass filter
 /*  Motor controller task*/
 void vMotorSpeedControllerTask(void *pvParameters) {
 
-	NRF_LOG_INFO("MotorSpeedControllerTask: initializing");
+	//NRF_LOG_INFO("MotorSpeedControllerTask: initializing");
 
     left_motor_reference    = right_motor_reference = 0;
     left_motor_speed        = right_motor_speed     = 0;
@@ -69,7 +69,7 @@ void vMotorSpeedControllerTask(void *pvParameters) {
     pid_parameters_right_motor.output_previous      = 0;
     pid_parameters_right_motor.derivative_select    = ERROR;
 
-	NRF_LOG_INFO("MotorSpeedControllerTask: init complete");
+	//NRF_LOG_INFO("MotorSpeedControllerTask: init complete");
     if(LOG_MOTOR_SPEED_CONTROLLER) printf("Time;Reference L;Reference R;Speed L;Speed R;Left u; Right u\n\r");
 
     while (1) 
@@ -100,7 +100,7 @@ void vMotorSpeedControllerTask(void *pvParameters) {
             encoder_ticks.right += encoder_ticks_temp.right;
         }
 
-        if(PRINT_DEBUG)NRF_LOG_INFO("Encoder ticks: %ld\t%ld\n\r", encoder_ticks.left, encoder_ticks.right);
+        //if(PRINT_DEBUG)//NRF_LOG_INFO("Encoder ticks: %ld\t%ld\n\r", encoder_ticks.left, encoder_ticks.right);
 
         left_motor_speed  = left_motor_speed *0.3 + 0.7 * (((encoder_ticks.left  * WHEEL_FACTOR_MM) / 1000.0) / delta_t );    //Low pass filter
         right_motor_speed = right_motor_speed*0.3 + 0.7 * (((encoder_ticks.right *  WHEEL_FACTOR_MM) / 1000.0)  / delta_t);	    //Low pass filter
@@ -176,7 +176,7 @@ void vMotorSpeedControllerTask(void *pvParameters) {
 
 void setMotorSpeedReference(int32_t left_motor, int32_t right_motor)
 {
-    //NRF_LOG_INFO("New Reference: L: %ld \tR:%ld\t", left_motor, right_motor);
+    ////NRF_LOG_INFO("New Reference: L: %ld \tR:%ld\t", left_motor, right_motor);
     if (left_motor > 100) left_motor_reference = 100;
     else if(left_motor < -100) left_motor_reference = -100;
     else left_motor_reference = left_motor;

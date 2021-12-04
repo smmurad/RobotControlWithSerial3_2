@@ -19,12 +19,12 @@
 QueueHandle_t queue_display;
 
 void display_task(void *arg) {
-    NRF_LOG_INFO("Display task: initializing");
+    //NRF_LOG_INFO("Display task: initializing");
     display_init();
 
     display_operation_t display_operation;
 
-    NRF_LOG_INFO("Display task: init complete");
+    //NRF_LOG_INFO("Display task: init complete");
     for (;;) {
         xQueueReceive(queue_display, &display_operation, portMAX_DELAY);
         xSemaphoreTake(mutex_i2c, portMAX_DELAY);
@@ -67,7 +67,7 @@ void display_task(void *arg) {
             break;
 
         default:
-            NRF_LOG_INFO("COMMAND WAS EMPTY");
+            //NRF_LOG_INFO("COMMAND WAS EMPTY");
             break;
         }
 		

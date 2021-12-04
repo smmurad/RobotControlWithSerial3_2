@@ -162,7 +162,7 @@ void motor_brake_right(){
 }
 
 void vMotorMovementSwitch(int leftSpeed, int rightSpeed){
-	if(PRINT_DEBUG)NRF_LOG_INFO("Movement Switch L: %d \t R: %d", leftSpeed, rightSpeed);
+	////if(PRINT_DEBUG)//NRF_LOG_INFO("Movement Switch L: %d \t R: %d", leftSpeed, rightSpeed);
     if (leftSpeed > 0){
 		motor_left_forward(leftSpeed);
     }else if(leftSpeed < 0){

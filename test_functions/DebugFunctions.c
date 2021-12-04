@@ -72,7 +72,7 @@ void mag_task(void *arg) {
         float heading = mag_heading();
         sprintf(str, "HEADING: %d", (int)heading);
         display_text_on_line(4, str);
-        // NRF_LOG_INFO("Heading:" NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(mag_heading()));
+        // //NRF_LOG_INFO("Heading:" NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(mag_heading()));
         vTaskDelay(1000);
     }
 }

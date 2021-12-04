@@ -119,7 +119,7 @@ arq_connection arq_listen(void (*func)(uint8_t*, uint16_t)) {
 }
 
 uint8_t arq_connect(arq_connection id, uint8_t remote_addr, void (*func)(uint8_t*, uint16_t), uint16_t timeout) {
-  NRF_LOG_INFO("Arq connect: called");
+  //NRF_LOG_INFO("Arq connect: called");
   arq_connection_t *con = &connections[id];
   con->status = STATUS_CONNECTING;
   con->callback_data_received = func;
@@ -135,10 +135,10 @@ uint8_t arq_connect(arq_connection id, uint8_t remote_addr, void (*func)(uint8_t
   //timeout*portTickPeriodMS
     con->status = STATUS_CLOSED; // Connection failed
     id = 0xFF;
-    NRF_LOG_INFO("Arq connection error");
+    //NRF_LOG_INFO("Arq connection error");
     return 0;
   } else {
-    NRF_LOG_INFO("Arq connection established");
+    //NRF_LOG_INFO("Arq connection established");
     uint8_t *buf = pvPortMalloc(SEND_BUF_SIZE);
     if(buf == NULL) return 0xFF;
     buffer_init(&con->send_buffer, buf, SEND_BUF_SIZE);
@@ -219,7 +219,7 @@ uint8_t arq_send_ack(arq_connection id, uint8_t sequence_number) {
   uint8_t data[2];
   data[0] = TYPE_ACK;
   data[1] = sequence_number;
-  //NRF_LOG_INFO("Sending ACK");
+  ////NRF_LOG_INFO("Sending ACK");
   return network_send(con->remote_address, PROTOCOL_ARQ, data, 2);
 }
 
@@ -265,7 +265,7 @@ void receiver(uint8_t address, uint8_t *data, uint16_t len) {
       if(type == TYPE_DATA) arq_reassembly(id, &data[2], len-2);
       con->request_number = (con->request_number+1) & 127;
     }
-    //NRF_LOG_INFO("sending ACK ON ALIVE TEST %d",con->request_number);
+    ////NRF_LOG_INFO("sending ACK ON ALIVE TEST %d",con->request_number);
     arq_send_ack(id, con->request_number);
   } else if(type == TYPE_ACK) {
     uint8_t i;

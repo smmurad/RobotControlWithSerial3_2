@@ -54,7 +54,7 @@ bool executingOrder = false;
 
 /*  Calculates new settings for the movement task */
 void vMainPoseControllerTask(void *pvParameters) {
-	NRF_LOG_INFO("mainPoseControllerTask: initializing");
+	//NRF_LOG_INFO("mainPoseControllerTask: initializing");
     //int count = 0;
 
     /* Task init */
@@ -150,8 +150,8 @@ void vMainPoseControllerTask(void *pvParameters) {
 	
 	//TickType_t xLastWakeTime = xTaskGetTickCount();
 	
-	NRF_LOG_INFO("mainPoseControllerTask: init complete");
-	 if(LOG_ROBOT_POSITION_CONTROLLER) printf("Time;Reference X;Reference Y;Reference heading;Estimated X;Estimated Y; Estimated heading;Left u; Right u\n\r");
+	//NRF_LOG_INFO("mainPoseControllerTask: init complete");
+	 //if(LOG_ROBOT_POSITION_CONTROLLER) printf("Time;Reference X;Reference Y;Reference heading;Estimated X;Estimated Y; Estimated heading;Left u; Right u\n\r");
 
     while (1) 
 	{
@@ -161,7 +161,7 @@ void vMainPoseControllerTask(void *pvParameters) {
 		int timeDifference = xLastWakeTime-previousTime;
 		count++;
 		if(count > 500){
-			NRF_LOG_INFO("TimeDiff: %i", (int)timeDifference);
+			//NRF_LOG_INFO("TimeDiff: %i", (int)timeDifference);
 			count = 0;
 		}
 		*/
@@ -173,7 +173,7 @@ void vMainPoseControllerTask(void *pvParameters) {
             if (xSemaphoreTake(xControllerBSem, portMAX_DELAY) == pdTRUE)  // Wait for synchronization from estimator
             {    
 
-				if(LOG_ROBOT_POSITION_CONTROLLER) NRF_LOG_INFO("Running controller task");
+				////if(LOG_ROBOT_POSITION_CONTROLLER) //NRF_LOG_INFO("Running controller task");
 
 				TickType_t ticks_since_startup_prev = ticks_since_startup;
         		ticks_since_startup = xTaskGetTickCount();
@@ -224,13 +224,13 @@ void vMainPoseControllerTask(void *pvParameters) {
                 yError = yTargt - yhat;
                 thetaTargt = atan2(yError, xError); //atan() returns radians
 				vFunc_Inf2pi(&thetaTargt);
-				//NRF_LOG_INFO("ThetaTarget : " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(thetaTargt));
+				////NRF_LOG_INFO("ThetaTarget : " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(thetaTargt));
                 //prevThetaError = thetaError;
                 thetaError = thetaTargt - thetahat; //Might be outside pi to -pi degrees
 
 
                 vFunc_Inf2pi(&thetaError);
-				//NRF_LOG_INFO("ThetaError : " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(thetaError));				
+				////NRF_LOG_INFO("ThetaError : " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(thetaError));				
 
 				
 				
@@ -255,7 +255,7 @@ void vMainPoseControllerTask(void *pvParameters) {
 
 				if((distanceError < radiusEpsilon) || (distanceDriven > distanceToTarget) || (collisionDetected))
 				{
-					if(PRINT_DEBUG)NRF_LOG_INFO("Controller STOP");
+					//if(PRINT_DEBUG)//NRF_LOG_INFO("Controller STOP");
 					controllerStop = true;
 					motor_brake();
 
@@ -279,7 +279,7 @@ void vMainPoseControllerTask(void *pvParameters) {
 					
                     if(doneTurning) //Start forward movement
                     {    
-						if(LOG_ROBOT_POSITION_CONTROLLER) NRF_LOG_INFO("Running distance controller");
+						//if(LOG_ROBOT_POSITION_CONTROLLER) //NRF_LOG_INFO("Running distance controller");
                         //float distanceTraveled = distanceStart - distanceError;
 						float u_distance;
 						float u_heading_while_driving;
@@ -307,7 +307,7 @@ void vMainPoseControllerTask(void *pvParameters) {
 						}
 						else
 						{
-							NRF_LOG_INFO("Delta_t IS ZERO");
+							//NRF_LOG_INFO("Delta_t IS ZERO");
 						}
 						
 						
@@ -323,7 +323,7 @@ void vMainPoseControllerTask(void *pvParameters) {
 					{
 						if(delta_t > 0)
 						{
-							if(LOG_ROBOT_POSITION_CONTROLLER) NRF_LOG_INFO("Running theta controller");
+							//if(LOG_ROBOT_POSITION_CONTROLLER) //NRF_LOG_INFO("Running theta controller");
 							left_u = right_u = PID_controller_with_error_as_input(&pid_parameters_heading, thetaError, thetaTargt, thetahat, delta_t);
 							left_u = -left_u;
 						}
@@ -347,7 +347,7 @@ void vMainPoseControllerTask(void *pvParameters) {
 				{ // Close enough to target
 
                     if (idleSendt == false) {
-                        NRF_LOG_INFO("controller sending idle");
+                        //NRF_LOG_INFO("controller sending idle");
                         send_idle();
                         idleSendt = true;
                     }
@@ -361,7 +361,7 @@ void vMainPoseControllerTask(void *pvParameters) {
 				/************************************************
 				* Set output
 				*************************************************/ 
-				if(LOG_ROBOT_POSITION_CONTROLLER) 		
+				//if(LOG_ROBOT_POSITION_CONTROLLER) 		
 				{
 					double time_since_startup = ticks_since_startup * 1.0 / configTICK_RATE_HZ;
 					printf("%f;%f;%f;%f;%f;%f;%f;%f;%f\n\r", time_since_startup, xTargt, yTargt, thetaTargt,(double) xhat, (double) yhat, thetahat, left_u, right_u);

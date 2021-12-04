@@ -39,7 +39,7 @@ position_estimate_t ekf_state;
 
 /* Pose estimator task */
 void vNewMainPoseEstimatorTask(void *pvParameters) {
-	NRF_LOG_INFO("NewMainPoseEstimatorTask: initializing");
+	//NRF_LOG_INFO("NewMainPoseEstimatorTask: initializing");
 	printf("USING NEW ESTIMATOR");
 	int count = 0;
 	float period_in_S = PERIOD_ESTIMATOR_MS / 1000.0;
@@ -86,7 +86,7 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 	float gyroSum = 0;
 	float gyroLimit = 0.1;
 
-	NRF_LOG_INFO("NewMainPoseEstimatorTask: init complete");
+	//NRF_LOG_INFO("NewMainPoseEstimatorTask: init complete");
 
 	//float accel_x_temp = 0;
 	//encoderTicks encoder_ticks_total;
@@ -128,7 +128,7 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 
         	while(xQueueReceive(encoderTicksToEstimatorTaskQ, &encoder_ticks_temp, 1) == pdTRUE)
         	{
-            	//NRF_LOG_INFO("Read ticks");
+            	////NRF_LOG_INFO("Read ticks");
             	encoder_ticks.left += encoder_ticks_temp.left;
             	encoder_ticks.right += encoder_ticks_temp.right;
         	}
@@ -144,7 +144,7 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 			//printf("left: %f\tright: %f\n\r", dLeft_total, dRight_total);
 			dRobot = (dLeft + dRight) / 2;
 			dTheta = (dRight - dLeft) / WHEELBASE_MM;					// Get angle from encoders, dervied from arch of circles formula NB! When turning in place this will only give 0
-			//NRF_LOG_INFO("dTheta: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(dTheta));
+			////NRF_LOG_INFO("dTheta: " NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(dTheta));
 		
 			// Get IMU data:
 			if (IMU_new_data()){
@@ -159,19 +159,19 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 					gyrZ = 0.0;
 				}
 			} else {
-				//NRF_LOG_INFO("No new data from IMU");
+				////NRF_LOG_INFO("No new data from IMU");
 				gyrZ = 0.0;
 			}
 
 			/* Alternative to Kalman Filter for heading. */
 			gyroSum += gyrZ*DEG2RAD*(float)(40.0/1000.0);
 
-			//NRF_LOG_INFO("gyro_Z: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(gyrZ));
+			////NRF_LOG_INFO("gyro_Z: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(gyrZ));
 			
 			/* Used to check timing issues */
 			//TickType_t tickdiff =xTaskGetTickCount()- xLastWakeTime2;
 			//xLastWakeTime2 = xTaskGetTickCount(); 
-			//NRF_LOG_INFO("ET:%u",(uint32_t) tickdiff);
+			////NRF_LOG_INFO("ET:%u",(uint32_t) tickdiff);
 		
 		
 		
@@ -189,7 +189,7 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 			//Z[1] = period_in_S*(accel_x_temp+accel.x)/2;
 			Z[2]=dTheta*25.0;		// encoder rotation speed (theta_hat)
 			Z[3]=gyrZ*DEG2RAD;
-			//NRF_LOG_INFO("Z[3]: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(Z[3]));
+			////NRF_LOG_INFO("Z[3]: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(Z[3]));
 
 			
 			if((dRobot == 0) | (fabs(accel.x) < 0.05)){ //if (dRobot ==0)
@@ -216,7 +216,7 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 				
 				headingTime = (xTaskGetTickCount());
 				sprintf(str2, "%d, %d, %d", (int)(kf_state.heading*RAD2DEG), (int)(gyroIntegral*RAD2DEG), (int)(headingTime));
-				NRF_LOG_INFO("%s", str2);
+				//NRF_LOG_INFO("%s", str2);
 		
 				count = 0;
 			}
@@ -230,9 +230,9 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 			//gLeft = dLeft;
 			//gRight = dRight;
 			xSemaphoreGive(xPoseMutex);
-			if(PRINT_DEBUG)NRF_LOG_INFO("EKF_x: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(1000*ekf_state.x));
-			if(PRINT_DEBUG)NRF_LOG_INFO("EKF_y: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(1000*ekf_state.y));
-			if(PRINT_DEBUG)NRF_LOG_INFO("EKF_heading: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(ekf_state.heading));
+			//if(PRINT_DEBUG)//NRF_LOG_INFO("EKF_x: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(1000*ekf_state.x));
+			//if(PRINT_DEBUG)//NRF_LOG_INFO("EKF_y: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(1000*ekf_state.y));
+			//if(PRINT_DEBUG)//NRF_LOG_INFO("EKF_heading: " NRF_LOG_FLOAT_MARKER "\t\r\n", NRF_LOG_FLOAT(ekf_state.heading));
 			if(LOG_MEASUREMENT_DATA){
 				//Accel.x and Gyrz is treated with offset
 				//double time_since_startup = ticks_since_startup * 1.0 / configTICK_RATE_HZ;
@@ -257,9 +257,9 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 				float accelFY = 0;
 				int fails = 0;
 				int sucsess = 0;
-				NRF_LOG_INFO("IMU calib init done");
+				//NRF_LOG_INFO("IMU calib init done");
 				vTaskDelay(150);//use delay so we dont write before i2c is initialized
-				NRF_LOG_INFO("Enter IMU calibration");
+				//NRF_LOG_INFO("Enter IMU calibration");
 				for (i = 0; i < samples; i++){
 					IMU_read(); //needs to be called to get new gyro data
 					gyro = IMU_getGyro();
@@ -278,23 +278,23 @@ void vNewMainPoseEstimatorTask(void *pvParameters) {
 					while (!IMU_new_data()){
 						vTaskDelay(20); // wait for new data
 						fails++;
-						NRF_LOG_INFO("Waiting for new IMU data");
+						//NRF_LOG_INFO("Waiting for new IMU data");
 						/*
 						sprintf(str4,"cal F:%i S:%i",fails,sucsess);
 						display_text_on_line(4,str4); 
 						*/
 					}
 				}
-				//NRF_LOG_INFO("aFX: %i aFY: %i gF: %i", gyroF, accelFX, gyroOffset);
-				NRF_LOG_INFO("Calib.i: %i", i);
+				////NRF_LOG_INFO("aFX: %i aFY: %i gF: %i", gyroF, accelFX, gyroOffset);
+				//NRF_LOG_INFO("Calib.i: %i", i);
 				gyroOffset = gyroF / (float)samples;
 				accelXoffset = accelFX/(float)samples;
 				accelYoffset = accelFY /(float)samples;
 				gyroCalib = 0;
-				NRF_LOG_INFO("gyroOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(gyroOffset));
-				NRF_LOG_INFO("accelXOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(accelXoffset));
-				NRF_LOG_INFO("accelYOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(accelYoffset));
-				//NRF_LOG_INFO("aX: %i aY: %i g: %i", accelXoffset, accelYoffset, gyroOffset);
+				//NRF_LOG_INFO("gyroOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(gyroOffset));
+				//NRF_LOG_INFO("accelXOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(accelXoffset));
+				//NRF_LOG_INFO("accelYOffset: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(accelYoffset));
+				////NRF_LOG_INFO("aX: %i aY: %i g: %i", accelXoffset, accelYoffset, gyroOffset);
 
 				if(!USEBLUETOOTH){
 					gHandshook = true;

@@ -137,7 +137,7 @@ void vMainSensorTowerTask(void *pvParameters) {
 			/*
 			if(calibrationCounter >= 10){
 				sprintf(irAnalogReading, "A1: %d", (int)(ir_read_blocking(3)));
-				NRF_LOG_INFO("%s", irAnalogReading);
+				//NRF_LOG_INFO("%s", irAnalogReading);
 				
 				calibrationCounter = 0;
 			}

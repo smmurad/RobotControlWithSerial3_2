@@ -36,7 +36,7 @@ int16_t yhat = 0;
 
 
 void vMainCommunicationTask(void *pvParameters){
-	NRF_LOG_INFO("Main Com Task: Initializing");
+	//NRF_LOG_INFO("Main Com Task: Initializing");
     struct sCartesian Setpoint = {0, 0}; // Struct for setpoints from server
     
 	if (USEBLUETOOTH)
@@ -49,20 +49,20 @@ void vMainCommunicationTask(void *pvParameters){
 		while (!success) 
 		{
 			success = server_connect();
-			NRF_LOG_INFO("Main Com Task: Waiting for server connect");
+			//NRF_LOG_INFO("Main Com Task: Waiting for server connect");
 			vTaskDelay(1000);
 		}
 	
 		//bsp_board_led_invert(3);
-		NRF_LOG_INFO("success: %d", success);
+		//NRF_LOG_INFO("success: %d", success);
 		vTaskDelay(200);
 		send_handshake();
-		NRF_LOG_INFO("Main Com Task: Init complete");
+		//NRF_LOG_INFO("Main Com Task: Init complete");
 		while (true) 
 		{
 			if (xSemaphoreTake(xCommandReadyBSem, portMAX_DELAY) == pdTRUE)
 			{ //TODO Is this semaphore used anywhere else?
-				NRF_LOG_INFO("NEW Command in");
+				//NRF_LOG_INFO("NEW Command in");
 				// We have a new command from the server, copy it to the memory
 				//vTaskSuspendAll ();       // Temporarily disable context switching
 				//taskENTER_CRITICAL();
@@ -72,7 +72,7 @@ void vMainCommunicationTask(void *pvParameters){
 				switch (command_in.type) 
 				{
 				case TYPE_CONFIRM:
-					NRF_LOG_INFO("MESSAGE WAS: TYPE_CONFIRM");
+					//NRF_LOG_INFO("MESSAGE WAS: TYPE_CONFIRM");
 					//taskENTER_CRITICAL();
 					gHandshook = true; // Set start flag true
 					//taskEXIT_CRITICAL();
@@ -80,12 +80,12 @@ void vMainCommunicationTask(void *pvParameters){
 					break;
 				
 				case TYPE_PING:
-					NRF_LOG_INFO("MESSAGE WAS: TYPE_PING");
+					//NRF_LOG_INFO("MESSAGE WAS: TYPE_PING");
 					send_ping_response();
 					break;
 				
 				case TYPE_ORDER:
-					NRF_LOG_INFO("MESSAGE WAS: TYPE_ORDER x: %d,Y:%d",command_in.message.order.x,command_in.message.order.y);
+					//NRF_LOG_INFO("MESSAGE WAS: TYPE_ORDER x: %d,Y:%d",command_in.message.order.x,command_in.message.order.y);
 					Setpoint.x = command_in.message.order.x;
 					Setpoint.y = command_in.message.order.y;
 					/* Relay new coordinates to position controller */
@@ -93,7 +93,7 @@ void vMainCommunicationTask(void *pvParameters){
 					break;
 				
 				case TYPE_PAUSE:
-					NRF_LOG_INFO("MESSAGE WAS: TYPE_PAUSE");
+					//NRF_LOG_INFO("MESSAGE WAS: TYPE_PAUSE");
 					// Stop sending update messages
 					//taskENTER_CRITICAL();
 					gPaused = true;
@@ -105,21 +105,22 @@ void vMainCommunicationTask(void *pvParameters){
 					break;
 				
 				case TYPE_UNPAUSE:
-					NRF_LOG_INFO("MESSAGE WAS: TYPE_UNPAUSE");
+					//NRF_LOG_INFO("MESSAGE WAS: TYPE_UNPAUSE");
 					//taskENTER_CRITICAL();
 					gPaused = false;
 				// taskEXIT_CRITICAL();
 					break;
 				
 				case TYPE_FINISH:
-					NRF_LOG_INFO("MESSAGE WAS: TYPE_FINISH");
+					//NRF_LOG_INFO("MESSAGE WAS: TYPE_FINISH");
 					//taskENTER_CRITICAL();
 					gHandshook = false;
 					//taskEXIT_CRITICAL();
 					break;
 
 				default:
-					NRF_LOG_INFO("message:case default No type %d", command_in.type);
+					break;
+					//NRF_LOG_INFO("message:case default No type %d", command_in.type);
 				}
 			} 
 		}
@@ -146,7 +147,7 @@ void vMainCommunicationTask(void *pvParameters){
 							//TODO This may need some condition variables so the scanning and stuff dont start before this is received.
 							xSemaphoreGive(xPoseMutex);
 						}else{
-							NRF_LOG_INFO("xPoseMutex not available!");
+							//NRF_LOG_INFO("xPoseMutex not available!");
 						}
 					
 						break;

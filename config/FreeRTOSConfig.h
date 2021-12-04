@@ -93,7 +93,7 @@
 #define configMAX_CO_ROUTINE_PRIORITIES                                           ( 2 )
 
 /* Software timer definitions. */
-#define configUSE_TIMERS 1 //Changed from 0 to 1, getting NRF_LOG_INFO working from tasks
+#define configUSE_TIMERS 1 //Changed from 0 to 1, getting //NRF_LOG_INFO working from tasks
 #define configTIMER_TASK_PRIORITY                                                 ( 2 )
 #define configTIMER_QUEUE_LENGTH                                                  32
 #define configTIMER_TASK_STACK_DEPTH                                              ( 80 )

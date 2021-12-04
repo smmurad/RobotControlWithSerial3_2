@@ -50,7 +50,7 @@ void microsd_write(char* filename, char* data) {
 
     diskio_blockdev_register(drives, ARRAY_SIZE(drives));
 
-    //NRF_LOG_INFO("Initializing disk 0 (SDC)...");
+    ////NRF_LOG_INFO("Initializing disk 0 (SDC)...");
 
     for (uint32_t retries = 3; retries && disk_state; --retries)
     {
@@ -59,40 +59,40 @@ void microsd_write(char* filename, char* data) {
     if (disk_state)
     {
         failed =1;
-        NRF_LOG_INFO("Disk initialization failed. %d", disk_state);
+        //NRF_LOG_INFO("Disk initialization failed. %d", disk_state);
         return;
     }
 	
 	//uint32_t blocks_per_mb = (1024uL * 1024uL) / m_block_dev_sdc.block_dev.p_ops->geometry(&m_block_dev_sdc.block_dev)->blk_size;
     //uint32_t capacity = m_block_dev_sdc.block_dev.p_ops->geometry(&m_block_dev_sdc.block_dev)->blk_count / blocks_per_mb;
-    //NRF_LOG_INFO("Capacity: %d MB", capacity);
+    ////NRF_LOG_INFO("Capacity: %d MB", capacity);
 
-    //NRF_LOG_INFO("Mounting volume...");
+    ////NRF_LOG_INFO("Mounting volume...");
     ff_result = f_mount(&fs, "", 1);
     if (ff_result)
     {   failed = 1;
-        NRF_LOG_INFO("Mount failed.");
+        //NRF_LOG_INFO("Mount failed.");
         return;
     }
 
     disk_state = STA_NOINIT;
 	
-	 //NRF_LOG_INFO("Writing to file %s.", filename);
+	 ////NRF_LOG_INFO("Writing to file %s.", filename);
     ff_result = f_open(&file, filename, FA_READ | FA_WRITE | FA_OPEN_APPEND);
     if (ff_result != FR_OK)
     {
-        NRF_LOG_INFO("Unable to open or create file %s.", filename);
+        //NRF_LOG_INFO("Unable to open or create file %s.", filename);
         return;
     }
 
     ff_result = f_write(&file, data, strlen(data), (UINT *) &bytes_written);
     if (ff_result != FR_OK)
     {
-        NRF_LOG_INFO("Write failed\r\n.");
+        //NRF_LOG_INFO("Write failed\r\n.");
     }
     else
     {
-        //NRF_LOG_INFO("%d bytes written.", bytes_written);
+        ////NRF_LOG_INFO("%d bytes written.", bytes_written);
     }
 
     (void) f_close(&file);
@@ -100,7 +100,7 @@ void microsd_write(char* filename, char* data) {
 	ff_result = f_mount(NULL, "", 1);
     if (ff_result)
     {
-        NRF_LOG_INFO("Mount failed.");
+        //NRF_LOG_INFO("Mount failed.");
         return;
     }
 	disk_state = disk_uninitialize(0);
@@ -119,7 +119,7 @@ void microsd_task(void *arg) {
 		
 		xQueueReceive(queue_microsd, &write_operation, portMAX_DELAY);
         xSemaphoreTake(mutex_spi, portMAX_DELAY);
-        //NRF_LOG_INFO("writing %s.", write_operation.content);
+        ////NRF_LOG_INFO("writing %s.", write_operation.content);
         microsd_write(write_operation.filename, write_operation.content);
         xSemaphoreGive(mutex_spi);
 		

@@ -139,9 +139,9 @@ int kf_step(float* Z){
 	theta_t = theta_t_-1 + delta(theta)(change in heading between t-1 and t) 
 	Can be linearized in each step using a First order Taylor Expansion
 	*/
-	//NRF_LOG_INFO("X_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[0]));
-	//NRF_LOG_INFO("Y_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[1]));
-	//NRF_LOG_INFO("Theta_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[2]));
+	////NRF_LOG_INFO("X_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[0]));
+	////NRF_LOG_INFO("Y_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[1]));
+	////NRF_LOG_INFO("Theta_apri: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(X[2]));
 	mulmat(Phi, X, temp5, N, N, 1); //result N*1
 	zeros(X,N,1);
 	accum(X,temp5,N,1);  //move result to X

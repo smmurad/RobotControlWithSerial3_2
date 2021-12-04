@@ -25,7 +25,7 @@ float accelYoffset = 0 ;
 float gyroOffset = 0.0;
 
 void IMU_tester(void *pvParameters){
-    NRF_LOG_INFO("Enter IMU tester");
+    //NRF_LOG_INFO("Enter IMU tester");
     //for(int t = 0;t<1000;t++){ //only for calibration data collection
     while(1){
         IMU_reading_t gyro;
@@ -38,8 +38,8 @@ void IMU_tester(void *pvParameters){
             float accelFY = 0;
             int fails = 0;
             int sucsess = 0;
-            NRF_LOG_INFO("IMU calib init done");
-            NRF_LOG_INFO("Enter IMU calibration");
+            //NRF_LOG_INFO("IMU calib init done");
+            //NRF_LOG_INFO("Enter IMU calibration");
             for (i = 0; i < samples; i++){
                 IMU_read(); //needs to be called to get new gyro data
                 gyro = IMU_getGyro();
@@ -55,7 +55,7 @@ void IMU_tester(void *pvParameters){
                 while (!IMU_new_data()){
                     vTaskDelay(20); // wait for new data
                     fails++;
-                    NRF_LOG_INFO("Waiting for new IMU data");
+                    //NRF_LOG_INFO("Waiting for new IMU data");
                 }
             }
             gyroOffset = gyroF / (float)samples;
@@ -77,7 +77,7 @@ void IMU_tester(void *pvParameters){
         //printf("\n%d",g_z);
         printf("\nAccel X = %.2f",accel.x-accelXoffset);
         printf("\nAccel Y = %.2f",accel.y-accelYoffset);
-       // NRF_LOG_INFO("gyro z: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(gyro.z));
+       // //NRF_LOG_INFO("gyro z: " NRF_LOG_FLOAT_MARKER "\t\t\r\n", NRF_LOG_FLOAT(gyro.z));
         vTaskDelay(250);
     }
 }

@@ -86,9 +86,9 @@ uint8_t send_handshake(void) {
 }
 
 void send_update(int16_t x_cm, int16_t y_cm, int16_t heading_deg, int16_t towerAngle_deg, uint8_t S1_cm, uint8_t S2_cm, uint8_t S3_cm, uint8_t S4_cm){
-  //NRF_LOG_INFO("connected is %d", connected);
+  ////NRF_LOG_INFO("connected is %d", connected);
   if(!connected) return;
-  //NRF_LOG_INFO("Connected, sending update");
+  ////NRF_LOG_INFO("Connected, sending update");
   message_t msg;
   msg.type = TYPE_UPDATE;
   msg.message.update.x = x_cm;
@@ -103,13 +103,13 @@ void send_update(int16_t x_cm, int16_t y_cm, int16_t heading_deg, int16_t towerA
   memcpy(data, (uint8_t*) &msg, sizeof(data));
   if(use_arq[TYPE_UPDATE]){
     arq_send(server_connection, data, sizeof(data));
-   // NRF_LOG_INFO("Update message sent");
+   // //NRF_LOG_INFO("Update message sent");
   } 
   else simple_p_send(SERVER_ADDRESS, data, sizeof(data));
 }
 
 void send_idle(void) {
- // NRF_LOG_INFO("IDLE connected is %d", connected);
+ // //NRF_LOG_INFO("IDLE connected is %d", connected);
   if(!connected) return;
   uint8_t status = TYPE_IDLE;
   if(use_arq[TYPE_IDLE]) arq_send(server_connection, &status, 1);
@@ -133,7 +133,7 @@ void debug(const char *fmt, ...) {
 }
 
 void send_ping_response(void) {
- // NRF_LOG_INFO("PING connected is %d", connected);
+ // //NRF_LOG_INFO("PING connected is %d", connected);
   if(!connected) return;
   uint8_t status = TYPE_PING_RESPONSE;
   if(use_arq[TYPE_PING_RESPONSE]) arq_send(server_connection, &status, 1);
@@ -142,10 +142,10 @@ void send_ping_response(void) {
 
 void server_receiver(uint8_t *data, uint16_t len) {
   if(data == NULL) { // ARQ passes NULL to the callback when connection is lost
-      NRF_LOG_INFO("ARQ connection lost");
+      //NRF_LOG_INFO("ARQ connection lost");
       gHandshook = 0;
   }
-  NRF_LOG_INFO("GIVING command semaphore with len:%d",len);//TODO remove
+  //NRF_LOG_INFO("GIVING command semaphore with len:%d",len);//TODO remove
   memcpy(&message_in, data, len);
   xSemaphoreGive(xCommandReadyBSem);
 }

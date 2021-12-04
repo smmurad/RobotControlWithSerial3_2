@@ -70,19 +70,19 @@ void in_pin_handler_right(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action
 void dir_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
   //void
-  if(PRINT_DEBUG)printf("dir pin handler\n\r");
+  //if(PRINT_DEBUG)printf("dir pin handler\n\r");
 }
 
 void timer_handler_count_left(nrf_timer_event_t event_type, void * p_context)
 {
   //void
-  if(PRINT_DEBUG)printf("left cnt handler\n\r");
+  //if(PRINT_DEBUG)printf("left cnt handler\n\r");
 }
 
 void timer_handler_count_right(nrf_timer_event_t event_type, void * p_context)
 {
   //void
-  if(PRINT_DEBUG)printf("right cnt handler\n\r");
+  //if(PRINT_DEBUG)printf("right cnt handler\n\r");
 }
 
 void encoder_with_counter_init()
@@ -93,7 +93,7 @@ void encoder_with_counter_init()
 
 	if(!nrf_drv_gpiote_is_init())
   {
-    NRF_LOG_INFO("Init gpiote\n\r");
+    //NRF_LOG_INFO("Init gpiote\n\r");
      err_code = nrf_drv_gpiote_init();
      APP_ERROR_CHECK(err_code);
   }

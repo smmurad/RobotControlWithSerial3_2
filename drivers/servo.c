@@ -23,7 +23,7 @@ static nrf_drv_pwm_t m_pwm_servo = NRF_DRV_PWM_INSTANCE(0);
 void vServo_setAngle(int angle) {
 	if (angle < -90 || angle > 90)
 	{
-		NRF_LOG_INFO("Servo angle outside range");
+		//NRF_LOG_INFO("Servo angle outside range");
 		return;
 	}
         int ticks = 375 + (int)(1.5*angle); 
