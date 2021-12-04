@@ -95,7 +95,7 @@ static void logger_thread(void * arg)
     {
         NRF_LOG_FLUSH();
 
-        vTaskSuspend(NULL); // Suspend myself
+        // vTaskSuspend(NULL); // Suspend myself
     }
 }
 #endif //NRF_LOG_ENABLED
@@ -223,13 +223,6 @@ static void user_task(void *arg) {
     NRF_LOG_INFO("User task: init complete");
     while(true){
         vTaskDelay(1000);
-        
-        
-		
-		
-		
-		
-		
 		
 		// Test-function, sends targetX and targetY to controller some time after initialization, used to test waypoints without server running.
 		if(testWaypoint){
@@ -264,7 +257,7 @@ static void led_toggle_task_function (void * pvParameter)
         bsp_board_led_invert(BSP_BOARD_LED_0);
 
         /* Delay a task for a given number of ticks */
-        vTaskDelay(100);
+        vTaskDelay(10000);
 
         /* Tasks must be implemented to never return... */
     }
@@ -382,11 +375,11 @@ int main(void) {
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
     }
     */
-   /*
-    if (pdPASS != xTaskCreate(Sensortower_tester, "SensortowerTest", 256, NULL, 1, &sensor_tower_tester)){
-        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-    }
-    */
+
+    // if (pdPASS != xTaskCreate(Sensortower_tester, "SensortowerTest", 256, NULL, 1, &sensor_tower_tester)){
+    //     APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+    // }
+
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
      * End used for testing drivers and hardware
