@@ -125,8 +125,6 @@ SRC_FILES += \
   $(PROJ_DIR)/ble_communication/buffer.c \
   $(PROJ_DIR)/ble_communication/simple_protocol.c \
   $(PROJ_DIR)/ble_communication/arq.c \
-  $(PROJ_DIR)/mqtt_communication/mqtt_dongle_legacy.c \
-  $(PROJ_DIR)/mqtt_communication/openTreadMQTT.c \
   $(PROJ_DIR)/software/ControllerTask.c \
   $(PROJ_DIR)/software/EstimatorTask.c \
   $(PROJ_DIR)/software/NewEstimatorTask.c \
@@ -342,7 +340,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/external/thedotfactory_fonts \
   $(PROJ_DIR)/drivers \
   $(PROJ_DIR)/ble_communication \
-  $(PROJ_DIR)/mqtt_communication \
   $(PROJ_DIR)/software \
   $(PROJ_DIR)/test_functions \
   $(SDK_ROOT)/components/thread/utils \
