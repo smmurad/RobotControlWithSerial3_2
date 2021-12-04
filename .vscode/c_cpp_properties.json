@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/drivers/**",
+                "${workspaceFolder}/communication/**",
+                "${workspaceFolder}/software/**",
+                "${workspaceFolder}/config/**",
+                "C:/nRF5_SDK_15.0.0/modules/**",
+                "C://nRF5_SDK_15.0.0/components/**",
+                "C://nRF5_SDK_15.0.0/external/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 4
+}

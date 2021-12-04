@@ -1,0 +1,28 @@
+{
+    "C_Cpp.default.includePath": [
+        "C:/nRF5_SDK_15.0.0/external/freertos/portable/IAR/nrf52/portmacro.h",
+        "{$workspaceFolder}/drivers/**",
+        "{$workspaceFolder}/communication/**",
+        "{$workspaceFolder}/software/**",
+        "{$workspaceFolder}/config/**",
+        "{$workspaceFolder}/pca10056/s140/config/**",
+        "{$workspaceFolder}/pca10056/s140/config/sdk_config.h",
+        "C:/nRF5_SDK_15.0.0/components/**",
+        "C:/nRF5_SDK_15.0.0/external/freertos/**",
+        "C:/nRF5_SDK_15.0.0/modules/**",
+        "C:/nRF5_SDK_15.0.0/integration/**",
+        "C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/lib/gcc/arm-none-eabi/9.3.1/include/**",
+        "C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/arm-none-eabi/include/**",
+        "C:/nRF5_SDK_15.0.0/external/freertos/source/include/**",
+
+    ],
+    "C_Cpp.default.browse.path": [
+        "C:/nRF5_SDK_15.0.0/external/freertos/portable/IAR/nrf52/portmacro.h",
+        "{$workspaceFolder}/pca10056/s140/config/sdk_config.h",
+    ],
+    "C_Cpp.default.compilerPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/bin/arm-none-eabi-gcc.exe",
+    "files.associations": {
+        "cstdint": "cpp"
+    },
+    "C_Cpp.dimInactiveRegions": false
+}
