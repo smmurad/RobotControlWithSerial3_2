@@ -249,14 +249,12 @@ static void user_task(void *arg) {
     
 }
 
-/*
-
 static void log_init(void) {
     ret_code_t err_code = NRF_LOG_INIT(NULL);
     APP_ERROR_CHECK(err_code);
 
     NRF_LOG_DEFAULT_BACKENDS_INIT();
-} */
+}
 
 static void led_toggle_task_function (void * pvParameter)
 {
@@ -282,6 +280,7 @@ int main(void) {
     bsp_board_init(BSP_INIT_LEDS);
     clock_init();
     ir_init();
+    log_init();
 
     /* Create task for LED0 blinking with priority set to 2 */
     if (true)
@@ -349,8 +348,8 @@ int main(void) {
 	xCommandReadyBSem = xSemaphoreCreateBinary();
 	
 	
-    if (pdPASS != xTaskCreate(display_task, "DISP", 128, NULL, 1, &handle_display_task))
-        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
+    // if (pdPASS != xTaskCreate(display_task, "DISP", 128, NULL, 1, &handle_display_task))
+    //     APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
 
     
     if (pdPASS != xTaskCreate(user_task, "USER", 128, NULL, 4, &handle_user_task)) //needs elevated priority because init functions
