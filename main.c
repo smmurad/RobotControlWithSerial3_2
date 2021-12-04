@@ -249,14 +249,14 @@ static void user_task(void *arg) {
     
 }
 
-/*
 
 static void log_init(void) {
+
     ret_code_t err_code = NRF_LOG_INIT(NULL);
     APP_ERROR_CHECK(err_code);
 
     NRF_LOG_DEFAULT_BACKENDS_INIT();
-} */
+}
 
 static void led_toggle_task_function (void * pvParameter)
 {
@@ -284,6 +284,8 @@ int main(void) {
     bsp_board_init(BSP_INIT_LEDS);
     clock_init();
     ir_init();
+    if (true)
+        log_init();
 
     /* Create task for LED0 blinking with priority set to 2 */
     if (true)
@@ -415,7 +417,6 @@ int main(void) {
     {
         	if (pdPASS != xTaskCreate(vMotorSpeedControllerTask, "SPEED", 256, NULL, 2, &motor_speed_controller_task))
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
-
     }
 
     if (pdPASS != xTaskCreate(vMainPoseControllerTask, "POSC", 512, NULL, 1, &pose_controller_task))
@@ -431,9 +432,9 @@ int main(void) {
 
     size_t freeHeapSize5 = xPortGetMinimumEverFreeHeapSize();
     UNUSED_VARIABLE(freeHeapSize5);
-    // //NRF_LOG_INFO("EverFreeHeapSize5 %d", freeHeapSize5); //If 
-    // //NRF_LOG_INFO("\nInitialization done. SLAM application now starting.\n.");
-    // //if(PRINT_DEBUG)printf("Application starting");
+    // //NRF_LOG_INFO("EverFreeHeapSize5 %d", freeHeapSize5);
+    NRF_LOG_INFO("\nInitialization done. SLAM application now starting.\n.");
+    // if(PRINT_DEBUG)printf("Application starting");
     vTaskStartScheduler();
     for (;;) {
         /**
