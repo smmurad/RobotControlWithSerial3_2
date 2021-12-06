@@ -318,6 +318,7 @@ static void timer_init(void)
  */
 static void thread_bsp_init(void)
 {
+    // we dont need buttons, also this crashes the software -Sigurd
     if(false)
     {
         uint32_t error_code = bsp_init(BSP_INIT_LEDS | BSP_INIT_BUTTONS, bsp_event_handler);
@@ -529,7 +530,7 @@ TimerHandle_t led_toggle_timer_handle;  /**< Reference to LED1 toggling FreeRTOS
 #define TIMER_PERIOD      1000          /**< Timer period. LED1 timer will expire after 1000 ms */
 
 int main(void) {
-    bsp_board_init(BSP_INIT_LEDS);
+    // bsp_board_init(BSP_INIT_LEDS);
     clock_init();
     ir_init();
     log_init();
@@ -542,27 +543,27 @@ int main(void) {
     thread_instance_init();
     thread_coap_init();
     thread_bsp_init();
-    thread_coap_utils_light_command_handler_set(on_light_change);
-
     if(false)
     {
+
+        thread_coap_utils_light_command_handler_set(on_light_change);
         //COAP init end//
         // Start thread stack execution.
         if (pdPASS != xTaskCreate(thread_stack_task, "THR", THREAD_STACK_TASK_STACK_SIZE, NULL, 2, &m_app.thread_stack_task))
         {
             APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
         }
-    }
-    // Start execution.
-    if (pdPASS != xTaskCreate(led1_task, "LED1", configMINIMAL_STACK_SIZE, NULL, 1, &m_app.led1_task))
-    {
-        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-    }
+        // Start execution.
+        if (pdPASS != xTaskCreate(led1_task, "LED1", configMINIMAL_STACK_SIZE, NULL, 1, &m_app.led1_task))
+        {
+            APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+        }
 
-    // Start execution.
-    if (pdPASS != xTaskCreate(led2_task, "LED2", configMINIMAL_STACK_SIZE, NULL, 1, &m_app.led2_task))
-    {
-        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+        // Start execution.
+        if (pdPASS != xTaskCreate(led2_task, "LED2", configMINIMAL_STACK_SIZE, NULL, 1, &m_app.led2_task))
+        {
+            APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+        }
     }
 
     /* Create task for LED0 blinking with priority set to 2 */
