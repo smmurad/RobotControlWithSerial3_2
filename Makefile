@@ -12,11 +12,13 @@ $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
 
 # Source files common to all targets
 SRC_FILES += \
+  $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
   $(SDK_ROOT)/components/libraries/button/app_button.c \
   $(SDK_ROOT)/components/libraries/util/app_error.c \
   $(SDK_ROOT)/components/libraries/util/app_error_handler_gcc.c \
   $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
+  $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c \
   $(SDK_ROOT)/components/libraries/timer/app_timer_freertos.c \
   $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
   $(SDK_ROOT)/components/libraries/crc16/crc16.c \
@@ -30,6 +32,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
+  $(SDK_ROOT)/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c \
+  $(SDK_ROOT)/components/libraries/ringbuf/nrf_ringbuf.c \
   $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
   $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
   $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c \
@@ -65,10 +69,10 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
   $(SDK_ROOT)/components/libraries/twi_mngr/nrf_twi_mngr.c \
-  $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
+  $(PROJ_DIR)/../app_utils/thread_coap_utils.c \
   $(SDK_ROOT)/components/ble/common/ble_advdata.c \
   $(SDK_ROOT)/components/ble/ble_link_ctx_manager/ble_link_ctx_manager.c \
   $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
@@ -227,6 +231,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/external/freertos/portable/GCC/nrf52 \
   $(SDK_ROOT)/components/ble/ble_dtm \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
+  $(SDK_ROOT)/external/openthread/include \
   $(SDK_ROOT)/components/ble/ble_services/ble_rscs_c \
   $(SDK_ROOT)/components/ble/common \
   $(SDK_ROOT)/components/ble/ble_services/ble_lls \
@@ -249,6 +254,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/ble/ble_services/ble_dfu \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/components/libraries/atomic \
+  $(SDK_ROOT)/external/openthread/project \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/components/libraries/cli \
@@ -278,6 +284,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/sdcard \
   $(SDK_ROOT)/components/nfc/ndef/parser/record \
   $(SDK_ROOT)/integration/nrfx \
+  $(SDK_ROOT)/external/openthread/project/nrf52840 \
   $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/modules/nrfx \
   $(SDK_ROOT)/modules/nrfx/mdk \
@@ -344,12 +351,15 @@ INC_FOLDERS += \
   $(PROJ_DIR)/test_functions \
   $(SDK_ROOT)/components/thread/utils \
   $(SDK_ROOT)/external/openthread/include \
+  $(SDK_ROOT)/external/openthread/include/openthread/platform/mbedtls \
   $(SDK_ROOT)/components/thread/mqtt_sn/mqtt_sn_client \
   $(SDK_ROOT)/external/paho/mqtt-sn/mqttsn_packet \
   $(SDK_ROOT)/components/thread/mqtt_sn/mqtt_sn_client \
   $(SDK_ROOT)/components/libraries/uart \
   $(SDK_ROOT)/components/libraries/mem_manager/ \
   $(SDK_ROOT)/components/libraries/fstorage/ \
+  $(PROJ_DIR)/../app_utils \
+
 
 # Libraries common to all targets
 LIB_FILES += \
@@ -375,6 +385,7 @@ CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 CFLAGS += -DFLOAT_ABI_HARD
 CFLAGS += -DFREERTOS
 CFLAGS += -DNRF52840_XXAA
+CFLAGS += -DOPENTHREAD_ENABLE_APPLICATION_COAP
 CFLAGS += -DOPENTHREAD_FTD=1
 CFLAGS += -DNRF_SD_BLE_API_VERSION=6
 CFLAGS += -DS140
