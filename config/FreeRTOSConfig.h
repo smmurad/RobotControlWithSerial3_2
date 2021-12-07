@@ -63,7 +63,7 @@
 #define configTICK_RATE_HZ                                                        1000
 #define configMAX_PRIORITIES                                                      ( 7 )
 #define configMINIMAL_STACK_SIZE                                                  ( 256 )
-#define configTOTAL_HEAP_SIZE                                                     ( 20000 )
+#define configTOTAL_HEAP_SIZE                                                     ( 20000+2048*5 ) // Adding 2048*2 for the openthread stack
 #define configMAX_TASK_NAME_LEN                                                   ( 6 )
 #define configUSE_16_BIT_TICKS                                                    0
 #define configIDLE_SHOULD_YIELD                                                   1
