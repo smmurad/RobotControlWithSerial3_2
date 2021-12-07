@@ -1,4 +1,54 @@
 
+/**
+ * Copyright (c) 2017 - 2019, Nordic Semiconductor ASA
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+/** @file
+ *
+ * @defgroup freertos_coap_server_example_main main.c
+ * @{
+ * @ingroup freertos_coap_server_example
+ *
+ * @brief Thread CoAP server example with FreeRTOS Application main file.
+ *
+ * This file contains the source code for a sample application using Thread CoAP server and FreeRTOS.
+ *
+ */
 #include <stdint.h>
 #include <string.h>
 #include "nordic_common.h"
@@ -18,9 +68,13 @@
 #include "fds.h"
 #include "nrf_drv_clock.h"
 #include "app_uart.h"
+#include "task.h"
+
+#define NRF_LOG_MODULE_NAME APP
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
+NRF_LOG_MODULE_REGISTER();
 
 ///Missing h-files
 #include "nrf_delay.h"
@@ -70,8 +124,6 @@
 
 #include "robot_config.h"
 
-// Coap includes
-#include "app_scheduler.h"
 #include "app_timer.h"
 #include "bsp_thread.h"
 
@@ -81,6 +133,10 @@
 #include <openthread/instance.h>
 #include <openthread/thread.h>
 
+#ifdef MBEDTLS_THREADING
+#include "freertos_mbedtls_mutex.h"
+#endif
+
 #define THREAD_STACK_TASK_STACK_SIZE     (( 1024 * 8 ) / sizeof(StackType_t))   /**< FreeRTOS task stack size is determined in multiples of StackType_t. */
 #define LOG_TASK_STACK_SIZE              ( 1024 / sizeof(StackType_t))          /**< FreeRTOS task stack size is determined in multiples of StackType_t. */
 #define THREAD_STACK_TASK_PRIORITY       2
@@ -89,8 +145,10 @@
 #define LED2_TASK_PRIORITY               1
 #define LED1_BLINK_INTERVAL              427
 #define LED2_BLINK_INTERVAL              472
-#define SCHED_QUEUE_SIZE                 32                                      /**< Maximum number of events in the scheduler queue. */
-#define SCHED_EVENT_DATA_SIZE            APP_TIMER_SCHED_EVENT_DATA_SIZE        
+
+#if NRF_LOG_ENABLED
+static TaskHandle_t m_logger_task;  /**< Definition of Logger task. */
+#endif
 
 typedef struct
 {
@@ -98,7 +156,7 @@ typedef struct
     TaskHandle_t     logger_task;           /**< Definition of Logger task. */
     TaskHandle_t     led1_task;             /**< LED1 task handle*/
     TaskHandle_t     led2_task;             /**< LED2 task handle*/
-    
+
 } application_t;
 
 
@@ -108,9 +166,12 @@ application_t m_app =
     .logger_task       = NULL,
     .led1_task         = NULL,
     .led2_task         = NULL,
-    .led2_task         = NULL,
+
 };
 
+/***************************************************************************************************
+ * @section CoAP
+ **************************************************************************************************/
 #define NRF_LOG_ENABLED 1
 
 #if NRF_LOG_ENABLED
@@ -176,7 +237,6 @@ uint8_t gPaused = false;
 // all SPI driver interaction occurs within mutex, so can safely use global bool
 bool shared_SPI_init = false;
 
-/////////////////// ADDDING COAP CODE ////////////////////
 
 static inline void light_on(void)
 {
@@ -318,15 +378,11 @@ static void timer_init(void)
  */
 static void thread_bsp_init(void)
 {
-    // we dont need buttons, also this crashes the software -Sigurd
-    if(false)
-    {
-        uint32_t error_code = bsp_init(BSP_INIT_LEDS | BSP_INIT_BUTTONS, bsp_event_handler);
-        APP_ERROR_CHECK(error_code);
-    }
+    uint32_t error_code = bsp_init(BSP_INIT_LEDS | BSP_INIT_BUTTONS, bsp_event_handler);
+    APP_ERROR_CHECK(error_code);
 
-    uint32_t error_code1 = bsp_thread_init(thread_ot_instance_get());
-    APP_ERROR_CHECK(error_code1);
+    error_code = bsp_thread_init(thread_ot_instance_get());
+    APP_ERROR_CHECK(error_code);
 }
 
 
@@ -360,12 +416,23 @@ static void thread_coap_init(void)
     thread_coap_utils_init(&thread_coap_configuration);
 }
 
+
+/**@brief Function for initializing the nrf log module.
+ */
+static void log_init(void)
+{
+    ret_code_t err_code = NRF_LOG_INIT(NULL);
+    APP_ERROR_CHECK(err_code);
+
+    NRF_LOG_DEFAULT_BACKENDS_INIT();
+}
 static void thread_stack_task(void * arg)
 {
     UNUSED_PARAMETER(arg);
 
     while (1)
     {
+        NRF_LOG_INFO("Processing thread");
         thread_process();
         UNUSED_RETURN_VALUE(ulTaskNotifyTake(pdTRUE, portMAX_DELAY));
     }
@@ -398,15 +465,20 @@ static void led2_task(void * arg)
     }
 }
 
-/////////////////// COAP END ////////////////////
-
+/***************************************************************************************************
+ * @section Idle hook
+ **************************************************************************************************/
 
 /**@brief A function which is hooked to idle task.
  * @note Idle hook must be enabled in FreeRTOS configuration (configUSE_IDLE_HOOK).
  */
-void vApplicationIdleHook(void) {
+void vApplicationIdleHook( void )
+{
 #if NRF_LOG_ENABLED
-     vTaskResume(m_logger_thread);
+    if (m_logger_task)
+    {
+        vTaskResume(m_logger_task);
+    }
 #endif
 }
 
@@ -436,37 +508,33 @@ static void user_task(void *arg) {
     write.content = "Starting slam application \n";
     xQueueSendToBack(queue_microsd, &write, portMAX_DELAY);
 */
-    NRF_LOG_INFO("user task: initializing");
    
+    NRF_LOG_INFO("user task: initializing");
     //UNUSED_PARAMETER(arg);
     //initialization of modules should be done after FreeRtos startup
     taskENTER_CRITICAL();
+    NRF_LOG_INFO("user task: after enter critical");
+    
     motor_init();
     servo_init();
-    //encoder_init_int();
-    encoder_with_counter_init();
+    // encoder_init_int(); // <- however this works
+    // encoder_with_counter_init(); //crashes the thread
     taskEXIT_CRITICAL();
     i2c_init();
     vTaskDelay(30);
     IMU_init();
 
-    //vTaskDelay(1500);
-    //setMotorSpeedReference(60,60);
-
     vTaskPrioritySet(handle_user_task, 1);
     vTaskDelay(5000);
 
-    NRF_LOG_INFO("IMU reading: %d\n\r", g_IMU_float_gyroX());
+    // NRF_LOG_INFO("IMU reading: %d\n\r", g_IMU_float_gyroX());
 
     //mag_init(MAG_OS_128);//oversampling rate used to set datarate 16->80hz 32->40hz 64->20hz 128->10hz
     //the rest of this is just used for testing and displaying values
     //vTaskSuspend(NULL);//no need to run more here except for debugging purposes
 
-    //vTaskPrioritySet(handle_user_task, 1);
-    
     //vTaskDelay(5000);
 
-    
     //char str1[20];
     //char str2[20];
     //char str3[20];
@@ -477,13 +545,11 @@ static void user_task(void *arg) {
 	float targetY = 0;
 	bool sent = false;
 	bool testWaypoint = false;
-    //cartesian target;
-    
 	
     NRF_LOG_INFO("User task: init complete");
     while(true){
         vTaskDelay(1000);
-		
+		continue;
 		// Test-function, sends targetX and targetY to controller some time after initialization, used to test waypoints without server running.
 		if(testWaypoint){
 			int time = (xTaskGetTickCount()/1000);
@@ -496,113 +562,46 @@ static void user_task(void *arg) {
 				time = 0;
 			}
 		}
-		
-    }
-
-    
-}
-
-static void log_init(void) {
-    ret_code_t err_code = NRF_LOG_INIT(NULL);
-    APP_ERROR_CHECK(err_code);
-
-    NRF_LOG_DEFAULT_BACKENDS_INIT();
-}
-
-static void led_toggle_task_function (void * pvParameter)
-{
-    UNUSED_PARAMETER(pvParameter);
-    while (true)
-    {
-        bsp_board_led_invert(BSP_BOARD_LED_0);
-
-        /* Delay a task for a given number of ticks */
-        vTaskDelay(1000);
-
-        /* Tasks must be implemented to never return... */
     }
 }
 
-TaskHandle_t  led_toggle_task_handle;   /**< Reference to LED0 toggling FreeRTOS task. */
-TimerHandle_t led_toggle_timer_handle;  /**< Reference to LED1 toggling FreeRTOS timer. */
-
-#define TASK_DELAY        200           /**< Task delay. Delays a LED0 task for 200 ms */
-#define TIMER_PERIOD      1000          /**< Timer period. LED1 timer will expire after 1000 ms */
 
 int main(void) {
-    // bsp_board_init(BSP_INIT_LEDS);
-    clock_init();
     ir_init();
     log_init();
+    clock_init();
+    timer_init();
 
     // ADDING COAP INIT //
     #ifdef MBEDTLS_THREADING
     freertos_mbedtls_mutex_init();
     #endif
-    timer_init();
     thread_instance_init();
     thread_coap_init();
     thread_bsp_init();
-    if(false)
+    thread_coap_utils_light_command_handler_set(on_light_change);
+
+    //COAP init end//
+    // Start thread stack execution.
+    if (pdPASS != xTaskCreate(thread_stack_task, "THR", THREAD_STACK_TASK_STACK_SIZE, NULL, 2, &m_app.thread_stack_task))
     {
-
-        thread_coap_utils_light_command_handler_set(on_light_change);
-        //COAP init end//
-        // Start thread stack execution.
-        if (pdPASS != xTaskCreate(thread_stack_task, "THR", THREAD_STACK_TASK_STACK_SIZE, NULL, 2, &m_app.thread_stack_task))
-        {
-            APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-        }
-        // Start execution.
-        if (pdPASS != xTaskCreate(led1_task, "LED1", configMINIMAL_STACK_SIZE, NULL, 1, &m_app.led1_task))
-        {
-            APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-        }
-
-        // Start execution.
-        if (pdPASS != xTaskCreate(led2_task, "LED2", configMINIMAL_STACK_SIZE, NULL, 1, &m_app.led2_task))
-        {
-            APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-        }
+        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
     }
 
-    /* Create task for LED0 blinking with priority set to 2 */
-    if (false)
-        UNUSED_VARIABLE(xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_STACK_SIZE + 200, NULL, 2, &led_toggle_task_handle));
+    // Start execution.
+    if (pdPASS != xTaskCreate(led1_task, "LED1", configMINIMAL_STACK_SIZE, NULL, 1, &m_app.led1_task))
+    {
+        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+    }
 
+    // Start execution.
+    if (pdPASS != xTaskCreate(led2_task, "LED2", configMINIMAL_STACK_SIZE, NULL, 1, &m_app.led2_task))
+    {
+        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+    }
     
     position_estimate_t pos_est = {0,0,0};
     set_position_estimate(&pos_est);
-
-/**
-	* The reset-reason functions are extremely useful as they help you rule out
-	* issues with power supply without having to resort to a oscilloscope.
-	*/
-#if !NRF_LOG_ENABLED || !NRF_LOG_BACKEND_RTT_ENABLED
-    //char const * error_msg;
-    //vTraceEnable(TRC_START_AWAIT_HOST);
-    //vTraceEnable(TRC_INIT);
-    //error_msg = xTraceGetLastError();
-#endif
-
-/*
-	* The reset-reason functions are extremely useful as they help you rule out
-	* issues with power supply without having to resort to a oscilloscope.
-	*/
-    //sd_power_reset_reason_get(&reset_reason);
-    //sd_power_reset_reason_clr(0xFFFFFFFF);
-
-/**
-	* The reset-reason functions are extremely useful as they help you rule out
-	* issues with power supply without having to resort to a oscilloscope.
-	*/
-// RecorderDataPtr
-#if !NRF_LOG_ENABLED || !NRF_LOG_BACKEND_RTT_ENABLED
-   //vTraceEnable(TRC_START);
-   //vTraceEnable(TRC_START_AWAIT_HOST);
-   //error_msg = xTraceGetLastError();
-#endif
-
 
     #if NRF_LOG_ENABLED
 		if (pdPASS != xTaskCreate(logger_thread, "LOGGER", 256, NULL, 1, &m_logger_thread))
@@ -627,13 +626,12 @@ int main(void) {
 	xControllerBSem = xSemaphoreCreateBinary(); // Estimator to Controller synchronization
 	xCommandReadyBSem = xSemaphoreCreateBinary();
 	
-    // Disable because it crashed the program -Sigurd 
-    // if (pdPASS != xTaskCreate(display_task, "DISP", 128, NULL, 1, &handle_display_task))
-    //     APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
+    if (pdPASS != xTaskCreate(display_task, "DISP", 128, NULL, 1, &handle_display_task))
+        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
 
-    if (pdPASS != xTaskCreate(user_task, "USER", 128, NULL, 4, &handle_user_task)) //needs elevated priority because init functions
+    if (pdPASS != xTaskCreate(user_task, "USER", 512, NULL, 4, &handle_user_task)) //needs elevated priority because init functions
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-    
+
     /********************************************************************************************************************************************************* 
      *Tasks used for testing drivers and hardware
      * Not to be used in final application
@@ -672,11 +670,6 @@ int main(void) {
      * End used for testing drivers and hardware
      * Not to be used in final application
      * ***********************************************************************************************************************************************************/
-
-    if (pdPASS != xTaskCreate(microsd_task, "SD", 256, NULL, 1, &handle_microsd_task))
-        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-    
-   	
     if(USE_NEW_ESTIMATOR){
         if (pdPASS != xTaskCreate(vNewMainPoseEstimatorTask, "POSE", 256, NULL, 3, &pose_estimator_task))
             APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
@@ -684,27 +677,24 @@ int main(void) {
         if (pdPASS != xTaskCreate(vMainPoseEstimatorTask, "POSE", 256, NULL, 3, &pose_estimator_task))
             APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
     }  
-
     if(USE_SPEED_CONTROLLER)
     {
-        	if (pdPASS != xTaskCreate(vMotorSpeedControllerTask, "SPEED", 256, NULL, 2, &motor_speed_controller_task))
+        if (pdPASS != xTaskCreate(vMotorSpeedControllerTask, "SPEED", 256, NULL, 2, &motor_speed_controller_task))
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
-
     }
 
     if (pdPASS != xTaskCreate(vMainPoseControllerTask, "POSC", 512, NULL, 1, &pose_controller_task))
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
-    
+
     if (pdPASS != xTaskCreate(vMainSensorTowerTask, "SnsT", 256, NULL, 1, &sensor_tower_task))
-		APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
-    
-	if (pdPASS != xTaskCreate(vMainCommunicationTask, "COM", 256, NULL, 1, &communication_task)) // Moved to this loop in order to use it for thread communications aswell
-            APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
-    
-    
+        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
+
+    if (pdPASS != xTaskCreate(vMainCommunicationTask, "COM", 256, NULL, 1, &communication_task)) // Moved to this loop in order to use it for thread communications aswell
+        APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
 
     size_t freeHeapSize5 = xPortGetMinimumEverFreeHeapSize();
-    NRF_LOG_INFO("EverFreeHeapSize5 %d", freeHeapSize5); //If 
+    NRF_LOG_INFO("thread stack size: %d", THREAD_STACK_TASK_STACK_SIZE);
+    NRF_LOG_INFO("EverFreeHeapSize5 %d", freeHeapSize5);
     NRF_LOG_INFO("\nInitialization done. SLAM application now starting.\n.");
     if(PRINT_DEBUG)printf("Application starting");
     vTaskStartScheduler();
@@ -719,4 +709,6 @@ int main(void) {
 }
 
 
-
+/**
+ *@}
+ **/

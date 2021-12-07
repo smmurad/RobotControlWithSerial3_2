@@ -94,8 +94,8 @@ void encoder_with_counter_init()
 	if(!nrf_drv_gpiote_is_init())
   {
     NRF_LOG_INFO("Init gpiote\n\r");
-     err_code = nrf_drv_gpiote_init();
-     APP_ERROR_CHECK(err_code);
+    err_code = nrf_drv_gpiote_init();
+    APP_ERROR_CHECK(err_code);
   }
 
 //Use secondary encoder sensors for count
