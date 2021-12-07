@@ -347,13 +347,28 @@ void otSysEventSignalPending(void)
 /***************************************************************************************************
  * @section Buttons
  **************************************************************************************************/
+static thread_coap_utils_light_command_t m_command = THREAD_COAP_UTILS_LIGHT_CMD_OFF; /**< This variable stores command that has been most recently used. */
 
 static void bsp_event_handler(bsp_event_t event)
 {
     switch (event)
     {
+        case BSP_EVENT_KEY_0:
+            thread_coap_utils_unicast_light_request_send(THREAD_COAP_UTILS_LIGHT_CMD_TOGGLE);
+            break;
+        case BSP_EVENT_KEY_1:
+        {
+            m_command = ((m_command == THREAD_COAP_UTILS_LIGHT_CMD_OFF) ? THREAD_COAP_UTILS_LIGHT_CMD_ON :
+                                                                          THREAD_COAP_UTILS_LIGHT_CMD_OFF);
+
+            thread_coap_utils_multicast_light_request_send(m_command,
+                                                           THREAD_COAP_UTILS_MULTICAST_REALM_LOCAL);
+            break;
+        }
+
+            break;
         case BSP_EVENT_KEY_3:
-            thread_coap_utils_provisioning_enable_set(true);
+            NRF_LOG_INFO("Pressing button 3");
             break;
 
         default:
@@ -409,8 +424,8 @@ static void thread_coap_init(void)
     thread_coap_utils_configuration_t thread_coap_configuration =
     {
         .coap_server_enabled               = true,
-        .coap_client_enabled               = false,
-        .configurable_led_blinking_enabled = true,
+        .coap_client_enabled               = true,
+        .configurable_led_blinking_enabled = false,
     };
 
     thread_coap_utils_init(&thread_coap_configuration);
@@ -693,10 +708,8 @@ int main(void) {
         APP_ERROR_HANDLER(NRF_ERROR_NO_MEM); 
 
     size_t freeHeapSize5 = xPortGetMinimumEverFreeHeapSize();
-    NRF_LOG_INFO("thread stack size: %d", THREAD_STACK_TASK_STACK_SIZE);
     NRF_LOG_INFO("EverFreeHeapSize5 %d", freeHeapSize5);
     NRF_LOG_INFO("\nInitialization done. SLAM application now starting.\n.");
-    if(PRINT_DEBUG)printf("Application starting");
     vTaskStartScheduler();
     for (;;) {
         /**
